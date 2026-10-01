@@ -18,15 +18,9 @@ export async function POST(request: Request) {
     if (existing) return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
     const id = crypto.randomUUID();
     const { salt, hash } = await hashPassword(password);
-    const firstUser = !(await database().prepare("SELECT id FROM focusflow_users LIMIT 1").first());
     await database().prepare("INSERT INTO focusflow_users (id, email, name, password_hash, password_salt, created_at) VALUES (?, ?, ?, ?, ?, ?)").bind(id, email, name, hash, salt, new Date().toISOString()).run();
-    if (firstUser && !process.env.VERCEL) {
-      try {
-        await database().prepare("INSERT INTO focusflow_user_state (user_id, payload, updated_at) SELECT ?, payload, updated_at FROM focusflow_state WHERE id = 1").bind(id).run();
-      } catch (error) {
-        console.info("Legacy workspace import skipped", error);
-      }
-    }
+    const workspace = { tasks: [], notes: [], resources: [], milestones: [], journal: [], goal: { title: "", target: "", intention: "" }, name, scene: { kind: "default", url: "" } };
+    await database().prepare("INSERT INTO focusflow_user_state (user_id, payload, updated_at) VALUES (?, ?, ?)").bind(id, JSON.stringify(workspace), new Date().toISOString()).run();
     const response = NextResponse.json({ user: { id, email, name } }, { status: 201 });
     response.headers.set("Set-Cookie", await createSession(id));
     return response;

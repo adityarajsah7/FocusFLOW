@@ -34,6 +34,8 @@ try {
   const registration = request("/api/auth/register", "POST", { name: "Deployment test", email: testEmail, password }, 201);
   userId = registration.user.id;
   if (request("/api/auth/session").user?.id !== userId) throw new Error("Session cookie failed");
+  const fresh = request("/api/state").data;
+  if (!fresh || fresh.name !== "Deployment test" || fresh.goal.title || fresh.goal.target || fresh.tasks.length || fresh.notes.length || fresh.resources.length || fresh.milestones.length || fresh.journal.length) throw new Error("New account did not start with its own empty workspace");
   const workspace = { tasks: [], notes: [], resources: [], milestones: [], journal: [], name: "Deployment test", goal: { title: "Test", intention: "Verification", target: "2027-03-31" }, scene: { kind: "default", url: "" } };
   request("/api/state", "PUT", workspace);
   if (request("/api/state").data.name !== workspace.name) throw new Error("Saved data did not round-trip");
