@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers";
+import { env } from "@/lib/runtime-env";
 import { NextResponse } from "next/server";
 import { currentUser } from "@/app/auth";
 
@@ -18,7 +18,8 @@ export async function GET(request: Request) {
     const headers = new Headers();
     object.writeHttpMetadata(headers);
     headers.set("etag", object.httpEtag);
-    headers.set("cache-control", "private, max-age=3600");
+    headers.set("cache-control", "private, no-store");
+    headers.set("x-content-type-options", "nosniff");
     return new NextResponse(object.body, { headers });
   } catch (error) {
     console.error("Unable to load custom scene", error);
@@ -33,8 +34,9 @@ export async function POST(request: Request) {
     const data = await request.formData();
     const file = data.get("scene");
     if (!(file instanceof File)) return NextResponse.json({ error: "Choose an image or video." }, { status: 400 });
-    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) return NextResponse.json({ error: "Only image and video files are supported." }, { status: 415 });
-    if (file.size > 60 * 1024 * 1024) return NextResponse.json({ error: "Choose a file smaller than 60 MB." }, { status: 413 });
+    if (!["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm"].includes(file.type)) return NextResponse.json({ error: "Choose a JPG, PNG, WebP, GIF, MP4, or WebM file." }, { status: 415 });
+    const maxMB = process.env.VERCEL ? 4 : 60;
+    if (file.size > maxMB * 1024 * 1024) return NextResponse.json({ error: `Choose a file smaller than ${maxMB} MB.` }, { status: 413 });
     await bucket().put(`focusflow/${user.id}/custom-scene`, file.stream(), { httpMetadata: { contentType: file.type } });
     return NextResponse.json({ kind: file.type.startsWith("video/") ? "video" : "image", url: `/api/scene?v=${Date.now()}` });
   } catch (error) {

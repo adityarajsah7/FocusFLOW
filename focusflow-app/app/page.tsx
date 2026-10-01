@@ -257,13 +257,16 @@ function PeacefulView({ name, now, active, onExit, scene, setScene }: { name: st
     audioRef.current = { context, gain, source }; setSoundOn(true);
   }
   async function chooseScene(file?: File) {
-    if (!file) return; setUploading(true);
+    if (!file) return;
+    const maxMB = Number(process.env.NEXT_PUBLIC_SCENE_MAX_MB || 60);
+    if (file.size > maxMB * 1024 * 1024) { window.alert(`Choose a file smaller than ${maxMB} MB.`); return; }
+    setUploading(true);
     const body = new FormData(); body.append("scene", file);
-    try { const response = await fetch("/api/scene", { method: "POST", body }); if (!response.ok) throw new Error(); setScene(await response.json() as SceneData); }
-    catch { window.alert("That scene could not be uploaded. Choose an image or video under 60 MB."); }
+    try { const response = await fetch("/api/scene", { method: "POST", body }); if (!response.ok) { const result = await response.json().catch(() => null) as { error?: string } | null; throw new Error(result?.error || "The scene could not be uploaded."); } setScene(await response.json() as SceneData); }
+    catch (error) { window.alert(error instanceof Error ? error.message : "The scene could not be uploaded."); }
     finally { setUploading(false); }
   }
-  async function resetScene() { await fetch("/api/scene", { method: "DELETE" }); setScene({ kind: "default", url: "" }); }
+  async function resetScene() { try { const response = await fetch("/api/scene", { method: "DELETE" }); if (!response.ok) throw new Error(); setScene({ kind: "default", url: "" }); } catch { window.alert("The scene could not be reset. Please try again."); } }
   return <section aria-hidden={!active} style={sceneStyle} className={`peace-room ${active ? "peace-active" : ""} ${isDay ? "peace-day" : "peace-night"}`}>
     {scene.kind === "video" ? <video className="peace-scene-media" src={scene.url} autoPlay muted loop playsInline /> : <div className="peace-landscape" style={scene.kind === "image" ? { backgroundImage: `url(${scene.url})` } : undefined} aria-hidden="true" />}
     <button className="workspace-return" onClick={onExit}><Home className="size-4" /> Workspace</button>

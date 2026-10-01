@@ -27,3 +27,13 @@ npm run build
 ```
 
 Database schema changes belong in `db/schema.ts`. Generated migrations in `drizzle/` are applied by the Sites publishing workflow.
+# Vercel deployment
+
+Set the Vercel Root Directory to `focusflow-app`, Framework to Next.js, and
+Build Command to `npm run build:vercel`. Connect Neon to supply `DATABASE_URL`
+and run `npm run db:migrate:vercel` once before first use.
+
+Next.js uses the Neon runtime adapter; Sites/vinext retains Cloudflare bindings.
+The Vercel database starts empty: existing Sites accounts and data are not copied.
+Custom scenes are stored privately in Neon with a 4 MB upload limit on Vercel.
+Larger videos require a separate direct-upload storage integration.
