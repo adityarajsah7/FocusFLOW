@@ -6,6 +6,9 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const body = await request.json() as { name?: string; email?: string; password?: string };
+    if (!body || typeof body.name !== "string" || typeof body.email !== "string" || typeof body.password !== "string" || body.email.length > 254 || body.name.length > 50) {
+      return NextResponse.json({ error: "Enter a valid name, email, and password." }, { status: 400 });
+    }
     const name = body.name?.trim().slice(0, 50) ?? "";
     const email = body.email?.trim().toLowerCase().slice(0, 254) ?? "";
     const password = body.password ?? "";

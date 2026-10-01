@@ -128,7 +128,10 @@ export default function HomePage() {
     queueMicrotask(() => setMinimal(workspaceRequested ? false : storedMinimal));
     if (workspaceRequested) window.history.replaceState({}, "", window.location.pathname);
     queueMicrotask(() => setNow(new Date()));
-    fetch("/api/auth/session").then((response) => response.json()).then(async (session: { user: AuthUser | null }) => {
+    fetch("/api/auth/session").then(async (response) => {
+      if (!response.ok) throw new Error("Session unavailable");
+      return await response.json() as { user: AuthUser | null };
+    }).then(async (session) => {
       setAuthUser(session.user); setAuthLoading(false);
       if (!session.user) return;
       const response = await fetch("/api/state");
@@ -142,7 +145,7 @@ export default function HomePage() {
         setPeacefulName(result.data.name ?? "Aditya");
       }
       setSaveStatus("saved"); setReady(true);
-    }).catch(() => { setAuthLoading(false); setSaveStatus("offline"); setReady(true); });
+    }).catch(() => { setAuthLoading(false); setSaveStatus("offline"); setReady(false); });
     const timer = window.setInterval(() => setNow(new Date()), 60_000);
     return () => window.clearInterval(timer);
   }, []);
