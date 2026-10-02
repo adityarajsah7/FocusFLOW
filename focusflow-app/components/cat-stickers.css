@@ -2,6 +2,33 @@
 .companion-pose .sticker-cat { animation:sticker-breathe 4s ease-in-out infinite; transform-origin:50% 85%; }
 .sticker-eyes { transform-origin:50% 52%; animation:sticker-blink 7s infinite; }
 .face-sleepy .sticker-eyes { animation:none; }
+.kitten-tail { transform-origin:155px 182px; animation:kitten-tail 3.2s ease-in-out infinite; }
+.kitten-head { transform-origin:110px 155px; animation:kitten-curious 8s ease-in-out infinite; }
+.kitten-pupil { transform:translate(var(--gaze-x,0px),var(--gaze-y,0px)); transition:transform .18s ease-out; }
+.kitten-paw { transform-origin:50% 90%; }
+.doing-knead .paw-0 { animation:kitten-knead .65s ease-in-out 4; }
+.doing-knead .paw-1 { animation:kitten-knead .65s .32s ease-in-out 4; }
+.doing-double-hop .kitten-tail { animation-duration:.4s; }
+.companion-touch:hover .kitten-head { animation:kitten-nuzzle 1.8s ease-in-out infinite; }
+.kitten-actions { display:flex; gap:5px; padding:7px; margin:8px 0; border:1px solid #ffffff42; border-radius:22px; background:#26344080; backdrop-filter:blur(14px); }
+.kitten-actions button { flex:1; min-height:48px; border-radius:15px; color:#fff5e6; font-size:10px; transition:background .2s,transform .2s; }
+.kitten-actions button span { display:block; font-size:20px; line-height:24px; }
+.kitten-actions button:hover { background:#fff3d934; transform:translateY(-3px); }
+.kitten-actions button:active { transform:scale(.92); }
+.kitten-actions button:focus-visible,.companion-touch:focus-visible { outline:3px solid #ffe1ad; outline-offset:3px; }
+.kitten-toy { position:absolute; z-index:3; right:0; bottom:12px; font-size:34px; pointer-events:none; color:#ffd9cf; filter:drop-shadow(0 4px 6px #172b3930); }
+.activity-play .kitten-toy { animation:kitten-yarn 2.8s ease-in-out; }
+.activity-treat .kitten-toy { animation:kitten-snack 2.8s both; }
+.activity-pet .kitten-toy,.activity-nap .kitten-toy { animation:kitten-love 3s ease-in-out infinite; }
+.sticker-tile .kitten-head,.sticker-tile .kitten-tail,.sticker-tile .sticker-eyes { animation:none; }
+@keyframes kitten-tail { 0%,100% { transform:rotate(-9deg); } 50% { transform:rotate(10deg); } }
+@keyframes kitten-curious { 0%,35%,65%,100% { transform:rotate(0); } 43%,55% { transform:rotate(-5deg); } }
+@keyframes kitten-nuzzle { 0%,100% { transform:rotate(-4deg) translateY(-2px); } 50% { transform:rotate(4deg) translateY(1px); } }
+@keyframes kitten-knead { 50% { transform:translateY(-9px) rotate(-5deg); } }
+@keyframes kitten-yarn { 0% { transform:translateX(0) rotate(0); } 30% { transform:translateX(-145px) rotate(-240deg); } 65% { transform:translateX(-50px) rotate(-80deg); } 100% { transform:translateX(0) rotate(0); } }
+@keyframes kitten-snack { 0% { transform:translate(12px,0) scale(.5); opacity:0; } 25% { opacity:1; transform:translate(-45px,-65px) scale(1); } 70% { opacity:1; transform:translate(-60px,-70px) scale(.7); } 100% { opacity:0; transform:translate(-65px,-75px) scale(.1); } }
+@keyframes kitten-love { 0%,100% { transform:translateY(0) rotate(-8deg); opacity:.65; } 50% { transform:translateY(-14px) rotate(8deg); opacity:1; } }
+@media(prefers-reduced-motion:reduce) { .companion *, .kitten-head,.kitten-tail { animation:none!important; transition:none!important; } }
 .sticker-tears { animation:sticker-drip 1.2s ease-in-out infinite; }
 .sticker-controls { display:flex; justify-content:center; gap:6px; margin-top:7px; }
 .sticker-controls button { padding:6px 12px; border-radius:20px; background:#142532a6; border:1px solid #ffffff30; color:#fff4df; font-size:11px; }
